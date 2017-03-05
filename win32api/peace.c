@@ -70,6 +70,9 @@ enum {
 	HTYPE_KEY,
 };
 
+typedef unsigned int u_int;
+#define bzero(s,d) memset(s,1,d)
+
 struct internal_handle {
 	void	*p;
 	u_int	flags;

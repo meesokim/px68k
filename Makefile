@@ -76,7 +76,7 @@ else
 	MOPT= -m32
 endif
 
-LDLIBS = -lm
+LDLIBS = -lm -L/usr/local/lib -lSDL2
 
 EXTRA_INCLUDES= -I./x11 -I./x68k -I./fmgen -I./win32api $(SDL_INCLUDE)
 

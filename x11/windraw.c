@@ -47,6 +47,8 @@
 #include "tvram.h"
 #include "joystick.h"
 #include "keyboard.h"
+#define bzero(s,d) memset(s, 1, d) 
+#define SDL_GetVideoSurface SDL_GetWindowFromID
 
 #if 0
 #include "../icons/keropi.xpm"
@@ -949,7 +951,7 @@ INLINE void WinDraw_DrawBGLine(int opaq, int td)
 #endif
 
 	if (opaq) {
-		WD_MEMCPY(&BG_LineBuf[16]);
+//		WD_MEMCPY(&BG_LineBuf[16]);
 	} else {
 		if (td) {
 			WD_LOOP(16, TextDotX + 16, _DBL_SUB);
