@@ -198,10 +198,10 @@ set_dir:
 
 	snprintf(path, len, "%s/%s", homepath, ".keropi");
 	if (stat(path, &sb) < 0) {
-#if  0
-		if (mkdir(path, 0700) < 0) {
-#else
+#ifdef __MINGW32__
 		if (mkdir(path) < 0) {
+#else
+		if (mkdir(path, 0700) < 0) {
 #endif
 			perror(path);
 			return 1;

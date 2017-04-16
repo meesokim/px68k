@@ -70,13 +70,13 @@ else
 SDL_LIB=	`$(SDL_CONFIG) --libs` -lSDL_gfx
 endif
 
-ifeq ($(shell uname -m),armv6l)
+ifeq ($(shell uname -m),armv7l)
 	MOPT=
 else
 	MOPT= -m32
 endif
 
-LDLIBS = -lm -L/usr/local/lib -lSDL2
+LDLIBS = -lm
 
 EXTRA_INCLUDES= -I./x11 -I./x68k -I./fmgen -I./win32api $(SDL_INCLUDE)
 
