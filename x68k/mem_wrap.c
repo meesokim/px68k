@@ -32,20 +32,23 @@ void BusError(DWORD, DWORD);
 
 static void wm_main(DWORD addr, BYTE val);
 static void wm_cnt(DWORD addr, BYTE val);
-static void FASTCALL wm_buserr(DWORD addr, BYTE val);
-static void FASTCALL wm_opm(DWORD addr, BYTE val);
-static void FASTCALL wm_e82(DWORD addr, BYTE val);
-static void FASTCALL wm_nop(DWORD addr, BYTE val);
+static void wm_buserr(DWORD addr, BYTE val);
+static void wm_opm(DWORD addr, BYTE val);
+static void wm_e82(DWORD addr, BYTE val);
+static void wm_nop(DWORD addr, BYTE val);
 
-static BYTE FASTCALL rm_main(DWORD addr);
-static BYTE FASTCALL rm_font(DWORD addr);
-static BYTE FASTCALL rm_ipl(DWORD addr);
-static BYTE FASTCALL rm_nop(DWORD addr);
-static BYTE FASTCALL rm_opm(DWORD addr);
-static BYTE FASTCALL rm_e82(DWORD addr);
-static BYTE FASTCALL rm_buserr(DWORD addr);
+static BYTE rm_main(DWORD addr);
+static BYTE rm_font(DWORD addr);
+static BYTE rm_ipl(DWORD addr);
+static BYTE rm_nop(DWORD addr);
+static BYTE rm_opm(DWORD addr);
+static BYTE rm_e82(DWORD addr);
+static BYTE rm_buserr(DWORD addr);
 
-BYTE (FASTCALL *MemReadTable[])(DWORD) = {
+void cpu_setOPbase24(DWORD addr);
+void Memory_ErrTrace(void);
+
+BYTE (*MemReadTable[])(DWORD) = {
 	TVRAM_Read, TVRAM_Read, TVRAM_Read, TVRAM_Read, TVRAM_Read, TVRAM_Read, TVRAM_Read, TVRAM_Read,
 	TVRAM_Read, TVRAM_Read, TVRAM_Read, TVRAM_Read, TVRAM_Read, TVRAM_Read, TVRAM_Read, TVRAM_Read,
 	TVRAM_Read, TVRAM_Read, TVRAM_Read, TVRAM_Read, TVRAM_Read, TVRAM_Read, TVRAM_Read, TVRAM_Read,
@@ -85,7 +88,7 @@ BYTE (FASTCALL *MemReadTable[])(DWORD) = {
 	rm_ipl, rm_ipl, rm_ipl, rm_ipl, rm_ipl, rm_ipl, rm_ipl, rm_ipl,
 };
 
-void (FASTCALL *MemWriteTable[])(DWORD, BYTE) = {
+void (*MemWriteTable[])(DWORD, BYTE) = {
 	TVRAM_Write, TVRAM_Write, TVRAM_Write, TVRAM_Write, TVRAM_Write, TVRAM_Write, TVRAM_Write, TVRAM_Write,
 	TVRAM_Write, TVRAM_Write, TVRAM_Write, TVRAM_Write, TVRAM_Write, TVRAM_Write, TVRAM_Write, TVRAM_Write,
 	TVRAM_Write, TVRAM_Write, TVRAM_Write, TVRAM_Write, TVRAM_Write, TVRAM_Write, TVRAM_Write, TVRAM_Write,
@@ -138,7 +141,7 @@ DWORD MemByteAccess = 0;
 /*
  * write function
  */
-void FASTCALL
+void 
 dma_writemem24(DWORD addr, BYTE val)
 {
 
@@ -147,7 +150,7 @@ dma_writemem24(DWORD addr, BYTE val)
 	wm_main(addr, val);
 }
 
-void FASTCALL
+void 
 dma_writemem24_word(DWORD addr, WORD val)
 {
 
@@ -162,7 +165,7 @@ dma_writemem24_word(DWORD addr, WORD val)
 	wm_main(addr + 1, val & 0xff);
 }
 
-void FASTCALL
+void 
 dma_writemem24_dword(DWORD addr, DWORD val)
 {
 
@@ -179,7 +182,7 @@ dma_writemem24_dword(DWORD addr, DWORD val)
 	wm_main(addr + 3, val & 0xff);
 }
 
-void FASTCALL
+void 
 cpu_writemem24(DWORD addr, BYTE val)
 {
 
@@ -193,7 +196,7 @@ cpu_writemem24(DWORD addr, BYTE val)
 	}
 }
 
-void FASTCALL
+void 
 cpu_writemem24_word(DWORD addr, WORD val)
 {
 
@@ -215,7 +218,7 @@ cpu_writemem24_word(DWORD addr, WORD val)
 	}
 }
 
-void FASTCALL
+void 
 cpu_writemem24_dword(DWORD addr, DWORD val)
 {
 
@@ -239,7 +242,7 @@ cpu_writemem24_dword(DWORD addr, DWORD val)
 	}
 }
 
-static void FASTCALL
+static void 
 wm_main(DWORD addr, BYTE val)
 {
 
@@ -247,7 +250,7 @@ wm_main(DWORD addr, BYTE val)
 		wm_cnt(addr, val);
 }
 
-static void FASTCALL
+static void 
 wm_cnt(DWORD addr, BYTE val)
 {
 
@@ -263,7 +266,7 @@ wm_cnt(DWORD addr, BYTE val)
 	}
 }
 
-static void FASTCALL
+static void 
 wm_buserr(DWORD addr, BYTE val)
 {
 
@@ -272,7 +275,7 @@ wm_buserr(DWORD addr, BYTE val)
 	(void)val;
 }
 
-static void FASTCALL
+static void 
 wm_opm(DWORD addr, BYTE val)
 {
 	BYTE t;
@@ -293,7 +296,7 @@ wm_opm(DWORD addr, BYTE val)
 #endif
 }
 
-static void FASTCALL
+static void 
 wm_e82(DWORD addr, BYTE val)
 {
 
@@ -304,7 +307,7 @@ wm_e82(DWORD addr, BYTE val)
 	}
 }
 
-static void FASTCALL
+static void 
 wm_nop(DWORD addr, BYTE val)
 {
 
@@ -316,14 +319,14 @@ wm_nop(DWORD addr, BYTE val)
 /*
  * read function
  */
-BYTE FASTCALL
+BYTE 
 dma_readmem24(DWORD addr)
 {
 
 	return rm_main(addr);
 }
 
-WORD FASTCALL
+WORD 
 dma_readmem24_word(DWORD addr)
 {
 	WORD v;
@@ -338,7 +341,7 @@ dma_readmem24_word(DWORD addr)
 	return v;
 }
 
-DWORD FASTCALL
+DWORD 
 dma_readmem24_dword(DWORD addr)
 {
 	DWORD v;
@@ -355,20 +358,21 @@ dma_readmem24_dword(DWORD addr)
 	return v;
 }
 
-BYTE FASTCALL
+BYTE 
 cpu_readmem24(DWORD addr)
 {
 	BYTE v;
 
 	v = rm_main(addr);
 	if (BusErrFlag & 1) {
+		printf("func = %s addr = %x flag = %d\n", __func__, addr, BusErrFlag);
 		Memory_ErrTrace();
 		BusError(addr, 0);
 	}
 	return v;
 }
 
-WORD FASTCALL
+WORD 
 cpu_readmem24_word(DWORD addr)
 {
 	WORD v;
@@ -383,13 +387,14 @@ cpu_readmem24_word(DWORD addr)
 	v = rm_main(addr++) << 8;
 	v |= rm_main(addr);
 	if (BusErrFlag & 1) {
+		printf("func = %s addr = %x flag = %d\n", __func__, addr, BusErrFlag);
 		Memory_ErrTrace();
 		BusError(addr, 0);
 	}
 	return v;
 }
 
-DWORD FASTCALL
+DWORD 
 cpu_readmem24_dword(DWORD addr)
 {
 	DWORD v;
@@ -398,6 +403,7 @@ cpu_readmem24_dword(DWORD addr)
 
 	if (addr & 1) {
 		BusErrFlag = 3;
+		printf("func = %s addr = %x\n", __func__, addr);
 		return 0;
 	}
 
@@ -410,7 +416,7 @@ cpu_readmem24_dword(DWORD addr)
 	return v;
 }
 
-static BYTE FASTCALL
+static BYTE 
 rm_main(DWORD addr)
 {
 	BYTE v;
@@ -430,21 +436,21 @@ rm_main(DWORD addr)
 	return v;
 }
 
-static BYTE FASTCALL
+static BYTE 
 rm_font(DWORD addr)
 {
 
 	return FONT[addr & 0xfffff];
 }
 
-static BYTE FASTCALL
+static BYTE 
 rm_ipl(DWORD addr)
 {
 
 	return IPL[(addr & 0x3ffff) ^ 1];
 }
 
-static BYTE FASTCALL
+static BYTE 
 rm_nop(DWORD addr)
 {
 
@@ -452,7 +458,7 @@ rm_nop(DWORD addr)
 	return 0;
 }
 
-static BYTE FASTCALL
+static BYTE 
 rm_opm(DWORD addr)
 {
 
@@ -462,7 +468,7 @@ rm_opm(DWORD addr)
 	return 0;
 }
 
-static BYTE FASTCALL
+static BYTE 
 rm_e82(DWORD addr)
 {
 
@@ -474,9 +480,10 @@ rm_e82(DWORD addr)
 	return 0;
 }
 
-static BYTE FASTCALL
+static BYTE 
 rm_buserr(DWORD addr)
 {
+    printf("func = %s addr = %x flag = %d\n", __func__, addr, BusErrFlag);
 
 	BusErrFlag = 1;
 	BusErrAdr = addr;
@@ -490,10 +497,17 @@ rm_buserr(DWORD addr)
 void Memory_Init(void)
 {
 
-	cpu_setOPbase24((DWORD)C68k_Get_Reg(&C68K, C68K_PC));
+//        cpu_setOPbase24((DWORD)C68k_Get_Reg(&C68K, C68K_PC));
+	#ifdef CYCLONE
+
+	cpu_setOPbase24((DWORD)m68000_get_reg(M68K_PC));
+
+	#else
+    cpu_setOPbase24((DWORD)C68k_Get_PC(&C68K));
+#endif
 }
 
-void FASTCALL
+void 
 cpu_setOPbase24(DWORD addr)
 {
 
@@ -535,7 +549,7 @@ cpu_setOPbase24(DWORD addr)
 	}
 }
 
-void FASTCALL
+void 
 Memory_SetSCSIMode(void)
 {
 	int i;
@@ -545,8 +559,7 @@ Memory_SetSCSIMode(void)
 	}
 }
 
-void FASTCALL
-Memory_ErrTrace(void)
+void Memory_ErrTrace(void)
 {
 #ifdef WIN68DEBUG
 	FILE *fp;
@@ -563,7 +576,7 @@ Memory_ErrTrace(void)
 #endif
 }
 
-void FASTCALL
+void 
 Memory_IntErr(int i)
 {
 #ifdef WIN68DEBUG
@@ -582,7 +595,7 @@ AdrError(DWORD adr, DWORD unknown)
 
 	(void)adr;
 	(void)unknown;
-	printf("AdrError: %d\n", adr);
+	printf("AdrError: %x\n", adr);
 	//	assert(0);
 }
 
@@ -593,7 +606,7 @@ BusError(DWORD adr, DWORD unknown)
 	(void)adr;
 	(void)unknown;
 
-	printf("BusError: %d\n", adr);
+	printf("BusError: %x\n", adr);
 	BusErrHandling = 1;
 	//assert(0);
 }

@@ -39,6 +39,8 @@ void WinDraw_DrawMenufile(struct menu_flist *mfl);
 void WinDraw_ClearMenuBuffer(void);
 void WinDraw_reverse_key(int x, int y);
 
+#define bzero(a, b) memset(a, 0, b)
+
 #endif //winx68k_windraw_h
 
 

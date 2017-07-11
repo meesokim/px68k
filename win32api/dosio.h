@@ -46,6 +46,8 @@ extern "C" {
 							// DOSIO:関数の準備
 void dosio_init(void);
 void dosio_term(void);
+
+typedef unsigned int u_int;
 							// ファイル操作
 FILEH file_open(LPSTR filename);
 FILEH file_create(LPSTR filename, int ftype);
@@ -58,7 +60,7 @@ DWORD file_zeroclr(FILEH handle, DWORD length);
 WORD file_lineread(FILEH handle, void *data, WORD length);
 short file_close(FILEH handle);
 short file_attr(LPSTR filename);
-							// カレントファイル操作
+							// ?レントファイル操作
 void file_setcd(LPSTR exename);
 LPSTR file_getcd(LPSTR filename);
 FILEH file_open_c(LPSTR filename);
@@ -156,8 +158,6 @@ void fname_mix(LPSTR str, LPSTR mix, int size);
 #define DD_MONTH_SHIFT		5
 #define DD_YEAR_MASK		0xFE00	/* year - 1980 */
 #define DD_YEAR_SHIFT		9
-
-typedef unsigned int u_int;
 
 void unix2dostime(time_t t, unsigned short *ddp, unsigned short *dtp, unsigned char *dhp);
 void dos2unixtime(u_int dd, u_int dt, u_int dh, time_t *tp);

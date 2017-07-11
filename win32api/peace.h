@@ -7,6 +7,9 @@
 extern "C" {
 #endif
 
+typedef unsigned int u_int;
+#define bzero(a, b) memset(a, 0, b)
+
 DWORD	WINAPI GetTickCount(void);
 
 BOOL	WINAPI ReadFile(HANDLE, PVOID, DWORD, PDWORD, LPOVERLAPPED);

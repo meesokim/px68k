@@ -17,7 +17,9 @@
 #define FASTCALL
 #define STDCALL
 #define	LABEL
+#ifndef __stdcall
 #define	__stdcall
+#endif
 
 #ifdef PSP
 #ifdef MAX_PATH

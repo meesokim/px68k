@@ -500,7 +500,7 @@ Keyboard_KeyDown(DWORD wp)
 
 	printf("Keyboard_KeyDown: ");
 	printf("wp=0x%x, code=0x%x\n", wp, code);
-	printf("SDLK_UP: 0x%x", SDLK_UP);
+	printf("SDLK_UP: 0x%x\n", SDLK_UP);
 
 #if 0
 	if (code != NC) {

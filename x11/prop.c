@@ -198,10 +198,10 @@ set_dir:
 
 	snprintf(path, len, "%s/%s", homepath, ".keropi");
 	if (stat(path, &sb) < 0) {
-#if  0
-		if (mkdir(path, 0700) < 0) {
-#else
+#ifdef WIN32		
 		if (mkdir(path) < 0) {
+#else			
+		if (mkdir(path, 0700) < 0) {
 #endif
 			perror(path);
 			return 1;
@@ -609,7 +609,7 @@ PropPage_Init(void)
 	    gtk_label_new("Others"));
 	gtk_widget_show(note);
 
-	/* ページ下部ボタン */
+	/* ?ージ下部??ン */
 	ok_button = gtk_button_new_with_label("OK");
 	gtk_table_attach_defaults(GTK_TABLE(dialog_table), ok_button,
 	    1, 2, 9, 10);

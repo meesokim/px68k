@@ -48,7 +48,13 @@
 #include "joystick.h"
 #include "keyboard.h"
 #define bzero(s,d) memset(s, 1, d) 
+#ifdef SDL2
 #define SDL_GetVideoSurface SDL_GetWindowFromID
+#else
+#define SDL_GetVideoSurface GetActiveWindow
+#endif
+
+int GetActiveWindow() { return 0; };
 
 #if 0
 #include "../icons/keropi.xpm"
@@ -1691,10 +1697,10 @@ int WinDraw_MenuInit(void)
 
 #if SDL_VERSION_ATLEAST(2, 0, 0)
 	menu_surface = SDL_CreateRGBSurface(SDL_SWSURFACE, 800, 600, 16, WinDraw_Pal16R, WinDraw_Pal16G, WinDraw_Pal16B, 0);
+	SDL_SetWindowFullscreen(menu_surface, SDL_WINDOW_FULLSCREEN);
 #else
 	menu_surface = SDL_GetVideoSurface();
 #endif
-
 	if (!menu_surface)
 		return FALSE;
 	set_sbp((WORD *)(menu_surface->pixels));

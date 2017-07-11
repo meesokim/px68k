@@ -52,6 +52,7 @@ LRESULT CALLBACK KeyConfProc(HWND hdlg, UINT msg, WPARAM wp, LPARAM lp)
 		if (wp==VK_F12)
 		{
 			EndDialog(hdlg, TRUE);
+			printf("VK_F12\n");
 			return TRUE;
 		}
 //		Error("Key Pressed.");
