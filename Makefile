@@ -72,7 +72,7 @@ else
 SDL_LIB=	`$(SDL_CONFIG) --libs` -lSDL_gfx
 endif
 
-ifeq ($(shell uname -m),armv6l)
+ifeq ($(shell uname -m),armv7l)
 	MOPT=
 else ifeq ($(shell uname -m),i686_32)
 	MOPT= -m32

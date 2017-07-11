@@ -200,7 +200,7 @@ set_dir:
 	if (stat(path, &sb) < 0) {
 #ifdef WIN32		
 		if (mkdir(path) < 0) {
-#else			
+#else
 		if (mkdir(path, 0700) < 0) {
 #endif
 			perror(path);

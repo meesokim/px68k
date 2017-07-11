@@ -56,6 +56,9 @@
 
 int GetActiveWindow() { return 0; };
 
+#ifdef __MINGW32__
+#define SDL_GetVideoSurface SDL_GetWindowFromID
+#endif
 #if 0
 #include "../icons/keropi.xpm"
 #endif
@@ -246,7 +249,7 @@ void WinDraw_HideSplash(void)
           |  ScrBufR ||512*2byte (x68k screen size: 756x512)
           |  (right) |V
 0x0418c000+----------+---------+A
-          |仮想キーボード用    || 512*256*2byte
+          |仮想?ー?ード用    || 512*256*2byte
           |    に使うかも領域  |V
 0x041cc000+--------------------+
           |                    |
@@ -342,19 +345,19 @@ int WinDraw_Init(void)
 		BtnTex[i] = 0x03e0;
 	}
 
-	// ボタン用テクスチャ。とりあえず全部同じ色。
+	// ??ン用テ?スチャ。とりあえず全部同じ色。
 	for (i = 1; i < 9; i++) {
 		glBindTexture(GL_TEXTURE_2D, texid[i]);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
 		if (i == 7) {
-			// とりあえずキーボードonボタンは薄めの黄色で。
+			// とりあえず?ー?ードon??ンは薄めの黄色で。
 			for (j = 0; j < 32*32; j++) {
 				BtnTex[j] = (0x7800 | 0x03e0);
 			}
 		}
 		if (i == 8) {
-			// とりあえずmenu onボタンは薄めの白色で。
+			// とりあえずmenu on??ンは薄めの白色で。
 			for (j = 0; j < 32*32; j++) {
 				BtnTex[j] = (0x7800 | 0x03e0 | 0x0f);
 			}
@@ -363,7 +366,7 @@ int WinDraw_Init(void)
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 32, 32, 0, GL_RGB, GL_UNSIGNED_SHORT_5_6_5, BtnTex);
 	}
 
-	// メニュー描画用テクスチャ。
+	// メニュー描画用テ?スチャ。
 	glBindTexture(GL_TEXTURE_2D, texid[9]);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
@@ -371,7 +374,7 @@ int WinDraw_Init(void)
 
 	draw_kbd_to_tex();
 
-	// ソフトウェアキーボード描画用テクスチャ。
+	// ?フトウェア?ー?ード描画用テ?スチャ。
 	glBindTexture(GL_TEXTURE_2D, texid[10]);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
@@ -475,7 +478,7 @@ void draw_all_buttons(GLfloat *tex, GLfloat *ver, GLfloat scale, int is_menu)
 
 	p = Joystick_get_btn_points(scale);
 
-	// 仮想キーはtexid: 1から6まで、キーボードonボタンが7、menuボタンが8
+	// 仮想?ーはtexid: 1から6まで、?ー?ードon??ンが7、menu??ンが8
 	for (i = 1; i < 9; i++) {
 		if (need_Vpad() || i >= 7 || (Config.JoyOrMouse && i >= 5)) {
 			draw_button(texid[i], p->x, p->y, scale, tex, ver);
@@ -509,14 +512,14 @@ WinDraw_Draw(void)
 
 	glEnable(GL_BLEND);
 
-	// アルファブレンドしない(上のテクスチャが下のテクスチャを隠す)
+	// アルファブレンドしない(上のテ?スチャが下のテ?スチャを隠す)
 	glBlendFunc(GL_ONE, GL_ZERO);
 
 	glBindTexture(GL_TEXTURE_2D, texid[0]);
-	//ScrBufから800x600の領域を切り出してテクスチャに転送
+	//ScrBufから800x600の領域を切り出してテ?スチャに転送
 	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 800, 600, GL_RGB, GL_UNSIGNED_SHORT_5_6_5, ScrBuf);
 
-	// magic numberがやたら多いが、テクスチャのサイズが1024x1024
+	// magic numberがやたら多いが、テ?スチャのサイ?が1024x1024
 	// OpenGLでの描画領域がglOrthof()で定義した800x600
 
 	// X68K 画面描画
@@ -540,11 +543,11 @@ WinDraw_Draw(void)
 
 	draw_texture(texture_coordinates, vertices);
 
-	// ソフトウェアキーボード描画
+	// ?フトウェア?ー?ード描画
 
 	if (Keyboard_IsSwKeyboard()) {
 		glBindTexture(GL_TEXTURE_2D, texid[10]);
-		//kbd_bufferから800x600の領域を切り出してテクスチャに転送
+		//kbd_bufferから800x600の領域を切り出してテ?スチャに転送
 		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 800, 600, GL_RGB, GL_UNSIGNED_SHORT_5_6_5, kbd_buffer);
 
 		// Texture から必要な部分を抜き出す
@@ -568,7 +571,7 @@ WinDraw_Draw(void)
 		draw_texture(texture_coordinates, vertices);
 	}
 
-	// 仮想パッド/ボタン描画
+	// 仮想パッド/??ン描画
 
 	// アルファブレンドする(スケスケいやん)
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
@@ -722,7 +725,7 @@ WinDraw_Draw(void)
 					dst16 -= sdl_surface->w;
 					dst16 += 2;
 				} else {
-					// xxx 未サポート
+					// xxx 未サ?ート
 				}
 			}
 		}
@@ -765,11 +768,11 @@ WinDraw_Draw(void)
 #ifdef FULLSCREEN_WIDTH
 #undef FULLSCREEN_WIDTH
 #endif
-//PSPのテクスチャは一辺が最大512なので、X68000の768x512画面を
+//PSPのテ?スチャは一辺が最大512なので、X68000の768x512画面を
 //512x512と256x512の左右二つに分ける。
-//以下のDrawLine系の関数処理もPSPは左右のテクスチャを別々に
+//以下のDrawLine系の関数処理もPSPは左右のテ?スチャを別々に
 //処理しなければならない。
-//ということで、以下のdefineは左側テクスチャの横幅を表している。
+//ということで、以下のdefineは左側テ?スチャの横幅を表している。
 #define FULLSCREEN_WIDTH 512
 #endif
 
@@ -1278,7 +1281,7 @@ void WinDraw_DrawLine(void)
 					// GrpよりTextが上にある場合にTextとの半透明を行うと、SPのプライオリティも
 					// Textに引きずられる？（つまり、Grpより下にあってもSPが表示される？）
 
-					// KnightArmsとかを見ると、半透明のベースプレーンは一番上になるみたい…。
+					// KnightArmsとかを見ると、半透明の?ースプレーンは一番上になるみたい…。
 
 		if ( (VCReg1[0]&0x02) )
 		{
@@ -1404,12 +1407,12 @@ void WinDraw_DrawLine(void)
 			opaq = 0;
 		}
 
-					// 特殊プライオリティ時のグラフィック
+					// 特殊プライオリティ時のグラフィッ?
 		if ( ((VCReg2[0]&0x5c)==0x14)&&(pron) )	// 特殊Pri時は、対象プレーンビットは意味が無いらしい（ついんびー）
 		{
 			WinDraw_DrawPriLine();
 		}
-		else if ( ((VCReg2[0]&0x5d)==0x1c)&&(tron) )	// 半透明時に全てが透明なドットをハーフカラーで埋める
+		else if ( ((VCReg2[0]&0x5d)==0x1c)&&(tron) )	// 半透明時に全てが透明なドットをハーフ?ラーで埋める
 		{						// （AQUALES）
 
 #define _DL_SUB(SUFFIX) \
@@ -1460,7 +1463,7 @@ struct _px68k_menu {
 SDL_Surface *menu_surface;
 #endif
 
-// 画面タイプを変更する
+// 画面?イプを変更する
 enum ScrType {x68k, pc98};
 int scr_type = x68k;
 
@@ -1509,7 +1512,7 @@ static WORD jis2idx(WORD jc)
 #endif
 
 // fs : font size : 16 or 24
-// 半角文字の場合は16bitの上位8bitにデータを入れておくこと
+// 半角文字の場合は16bitの上位8bitにデー?を入れておくこと
 // (半角or全角の判断ができるように)
 static DWORD get_font_addr(WORD sjis, int fs)
 {
@@ -1574,13 +1577,13 @@ static void set_mbcolor(WORD c)
 	p6m.mbcolor = c;
 }
 
-// グラフィック座標
+// グラフィッ?座標
 static void set_mlocate(int x, int y)
 {
 	p6m.ml_x = x, p6m.ml_y = y;
 }
 
-// キャラクタ文字の座標 (横軸は1座標が半角文字幅になる)
+// ?ャラ??文字の座標 (横軸は1座標が半角文字幅になる)
 static void set_mlocateC(int x, int y)
 {
 	p6m.ml_x = x * p6m.mfs / 2, p6m.ml_y = y * p6m.mfs;
@@ -1603,7 +1606,7 @@ static WORD *get_ml_ptr()
 	return p6m.mlp;
 }
 
-// ・半角文字の場合は16bitの上位8bitにデータを入れておくこと
+// ・半角文字の場合は16bitの上位8bitにデー?を入れておくこと
 //   (半角or全角の判断ができるように)
 // ・表示した分cursorは先に移動する
 static void draw_char(WORD sjis)
@@ -1667,7 +1670,7 @@ static void draw_str(char *cp)
 			s += 2;
 			i++;
 		}
-		// 8x8描画(ソフトキーボードのFUNCキーは文字幅を縮める)
+		// 8x8描画(?フト?ー?ードのFUNC?ーは文字幅を縮める)
 		if (p6m.mfs == 8) {
 			p6m.ml_x -= 3;
 		}
@@ -1765,7 +1768,7 @@ static void ogles11_draw_menu(void)
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
 	glBindTexture(GL_TEXTURE_2D, texid[9]);
-	//ScrBufから800x600の領域を切り出してテクスチャに転送
+	//ScrBufから800x600の領域を切り出してテ?スチャに転送
 	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 800, 600, GL_RGB, GL_UNSIGNED_SHORT_5_6_5, menu_buffer);
 
 	// Texture から必要な部分を抜き出す
@@ -1798,16 +1801,16 @@ void WinDraw_DrawMenu(int menu_state, int mkey_pos, int mkey_y, int *mval_y)
 	int i, drv;
 	char tmp[256];
 
-// ソフトウェアキーボード描画時にset_sbp(kbd_buffer)されているので戻す
+// ?フトウェア?ー?ード描画時にset_sbp(kbd_buffer)されているので戻す
 #if defined(PSP) || defined(USE_OGLES11)
 	set_sbp(menu_buffer);
 #endif
-// ソフトウェアキーボード描画時にset_mfs(16)されているので戻す
+// ?フトウェア?ー?ード描画時にset_mfs(16)されているので戻す
 #if defined(ANDROID) || TARGET_OS_IPHONE
 	set_mfs(24);
 #endif
 
-	// タイトル
+	// ?イトル
 	if (scr_type == x68k) {
 		set_mcolor(0x07ff); // cyan
 		set_mlocateC(0, 0);
@@ -1853,7 +1856,7 @@ void WinDraw_DrawMenu(int menu_state, int mkey_pos, int mkey_y, int *mval_y)
 		draw_str(waku3_str);
 	}
 
-	// アイテム/キーワード
+	// アイテ?/?ーワード
 	set_mcolor(0xffff);
 	for (i = 0; i < 7; i++) {
 		set_mlocateC(3, 5 + i);
@@ -1867,7 +1870,7 @@ void WinDraw_DrawMenu(int menu_state, int mkey_pos, int mkey_y, int *mval_y)
 		draw_str(menu_item_key[i + mkey_pos]);
 	}
 
-	// アイテム/現在値
+	// アイテ?/現在値
 	set_mcolor(0xffff);
 	set_mbcolor(0x0);
 	for (i = 0; i < 7; i++) {
@@ -1897,7 +1900,7 @@ void WinDraw_DrawMenu(int menu_state, int mkey_pos, int mkey_y, int *mval_y)
 			if (p[0] == '\0') {
 				draw_str(" -- no disk --");
 			} else {
-				// 先頭のカレントディレクトリ名を表示しない
+				// 先頭の?レントディレ?トリ名を表示しない
 				if (!strncmp(cur_dir_str, p, cur_dir_slen)) {
 					draw_str(p + cur_dir_slen);
 				} else {
@@ -1923,7 +1926,7 @@ void WinDraw_DrawMenu(int menu_state, int mkey_pos, int mkey_y, int *mval_y)
 		draw_str(swaku3_str);
 	}
 
-	// キャプション
+	// ?ャプション
 	set_mcolor(0xffff);
 	set_mbcolor(0x0);
 	set_mlocateC(2, 14);
@@ -1979,7 +1982,7 @@ void WinDraw_DrawMenufile(struct menu_flist *mfl)
 			set_mcolor(0xffff);
 			set_mbcolor(0x1);
 		}
-		// ディレクトリだったらファイル名を[]で囲う
+		// ディレ?トリだったらファイル名を[]で囲う
 		set_mlocateC(3, i + 2);
 		if (mfl->type[i + mfl->ptr]) draw_str("[");
 		draw_str(mfl->name[i + mfl->ptr]);
@@ -2018,7 +2021,7 @@ void WinDraw_ClearMenuBuffer(void)
 
 }
 
-/********** ソフトウェアキーボード描画 **********/
+/********** ?フトウェア?ー?ード描画 **********/
 
 #if defined(PSP) || defined(USE_OGLES11)
 
@@ -2032,7 +2035,7 @@ void WinDraw_ClearMenuBuffer(void)
 
 #define KBD_FS 16 // keyboard font size : 16
 
-// キーを反転する
+// ?ーを反転する
 void WinDraw_reverse_key(int x, int y)
 {
 	WORD *p;
@@ -2113,7 +2116,7 @@ static void draw_kbd_to_tex()
 	set_mbcolor(0);
 	set_mcolor(0);
 
-	// キーボードの背景
+	// ?ー?ードの背景
 	p = kbd_buffer;
 	for (y = 0; y < kbd_h; y++) {
 		for (x = 0; x < kbd_w; x++) {
@@ -2122,14 +2125,14 @@ static void draw_kbd_to_tex()
 		p = p + KBDBUF_WIDTH - kbd_w;
 	}
 
-	// キーの描画
+	// ?ーの描画
 	for (i = 0; kbd_key[i].x != -1; i++) {
 		p = kbd_buffer + kbd_key[i].y * KBDBUF_WIDTH + kbd_key[i].x;
 		for (y = 0; y < kbd_key[i].h; y++) {
 			for (x = 0; x < kbd_key[i].w; x++) {
 				if (x == (kbd_key[i].w - 1)
 				    || y == (kbd_key[i].h - 1)) {
-					// キーに影をつけ立体的に見せる
+					// ?ーに影をつけ立体的に見せる
 					*p++ = 0x0000;
 				} else {
 					*p++ = 0xffff;
@@ -2138,7 +2141,7 @@ static void draw_kbd_to_tex()
 			p = p + KBDBUF_WIDTH - kbd_key[i].w;
 		}
 		if (strlen(kbd_key[i].s) == 3 && *(kbd_key[i].s) == 'F') {
-			// FUNCキー刻印描画
+			// FUNC?ー刻印描画
 			set_mlocate(kbd_key[i].x + kbd_key[i].w / 2
 				    - strlen(kbd_key[i].s) * (8 / 2)
 				    + (strlen(kbd_key[i].s) - 1) * 3 / 2,
@@ -2147,7 +2150,7 @@ static void draw_kbd_to_tex()
 			draw_str(kbd_key[i].s);
 			set_mfs(KBD_FS);
 		} else {
-			// 刻印は上下左右ともセンタリングする
+			// 刻印は上下左右とも?ン?リングする
 			set_mlocate(kbd_key[i].x + kbd_key[i].w / 2
 				    - strlen(kbd_key[i].s) * (KBD_FS / 2 / 2),
 				    kbd_key[i].y
