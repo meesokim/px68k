@@ -849,8 +849,15 @@ int main(int argc, char *argv[])
 			switch (ev.type) {
 			case SDL_QUIT:
 				goto end_loop;
+			case SDL_MOUSEBUTTONDOWN:
+				Mouse_Event(1, 1.0, 0);
+				break;
+			case SDL_MOUSEBUTTONUP:
+				Mouse_Event(1, 0, 0);
+				break;
 			case SDL_MOUSEMOTION:
 				p6logd("x:%d y:%d xrel:%d yrel:%d\n", ev.motion.x, ev.motion.y, ev.motion.xrel, ev.motion.yrel);
+				Mouse_Event(0, ev.motion.xrel/512.0, ev.motion.yrel/512.0);
 				break;
 #if defined(ANDROID) || TARGET_OS_IPHONE
 			case SDL_APP_WILLENTERBACKGROUND:

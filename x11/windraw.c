@@ -679,11 +679,20 @@ WinDraw_Draw(void)
 	}
 
 	if (TextDotX <= 512) {
+#if 1 
+		SDL_Rect r;
+		r.x = 0;
+		r.y = 0;
+		r.w = TextDotX;
+		r.h = TextDotY;
+		SDL_BlitScaled(sdl_rgbsurface, &r, sdl_surface, NULL); 
+#else		
 		roto_surface = rotozoomSurfaceXY(sdl_rgbsurface, 0.0, 512.0*1.33333/TextDotX, 512.0/TextDotY, 0);
-	}
-	if (roto_surface) {
-		ret = SDL_BlitSurface(roto_surface, NULL, sdl_surface, NULL);
-		SDL_FreeSurface(roto_surface);
+		if (roto_surface) {
+			//ret = SDL_BlitSurface(roto_surface, NULL, sdl_surface, NULL);
+			//SDL_FreeSurface(roto_surface);
+		}
+#endif
 	} else {
 		ret = SDL_BlitSurface(sdl_rgbsurface, NULL, sdl_surface, NULL);
 	}
